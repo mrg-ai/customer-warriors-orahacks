@@ -6,6 +6,7 @@ from cdqa.pipeline import QAPipeline
 import pandas as pd
 import pickle
 import jsonify
+import re
 
 app = Flask('Customer Warriors') 
 
@@ -61,6 +62,23 @@ def results():
         short_answer1 , doc_link1, paragraph1 = show_predictions(prediction[0],url_dict)
         short_answer2 , doc_link2, paragraph2 = show_predictions(prediction[1],url_dict)
         short_answer3 , doc_link3, paragraph3 = show_predictions(prediction[2],url_dict)
+        
+        
+
+        def resolve_link(doc_link, paragraph):
+            regex_string=re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)|$', re.DOTALL)  
+            if doc_link is None:
+                link_from_paragraph=re.search(regex_string, paragraph).group()
+                if link_from_paragraph:
+                    doc_link=link_from_paragraph
+                else:
+                    doc_link='https://mrg-ai.github.io/blog/2021/02/26/Customer-Warriors-Orahacks.html'
+            return doc_link
+
+        doc_link1 = resolve_link(doc_link1,paragraph1)
+        doc_link2 = resolve_link(doc_link2,paragraph2)
+        doc_link3 = resolve_link(doc_link3,paragraph3) 
+
 
         return render_template('Results.html', inputword=inputsentence
 		,   
